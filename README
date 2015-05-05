@@ -1,0 +1,98 @@
+/*******************************************************
+ *@ Name: 移动端图片上传示例
+ *@ Time: 2015/5/5
+ *@ Author: FrontEndZQ
+*/
+
+一、注意事项：
+1、基于Jquery开发；
+2、移动端传图，引用mobileBUGFix.mini.js；
+3、解决小米机传图无后缀问题，引用LocalResizeIMG.js；
+4、解决IOS下图片默认翻转问题，引用exif.js；
+5、移动端适配，引入viewport.js；
+6、包含图片预加载，上传后图片尺寸缩放及居中问题；
+
+
+
+二、核心代码
+模拟上传： <input class="file" multiple="multiple" type="file" name="" id="file">
+预览：    <ul class="vLst"></ul>
+
+
+JS调用：
+$('#file').localResizeIMG({
+     width: 640,                        //默认尺寸640 
+     quality: 0.8,                      //体积压缩20%
+     before: function (that, blob) {    //图片上传前信息
+     	num = $(that).length;
+     	console.log(num)
+     	
+     	$('.msk').show();
+     },
+     success: function (result) {       //图片上传成功后   
+     	$('.msk').hide();
+ 
+     	var output = result.base64;     //获取base64位图片信息      
+     	console.log(output)
+
+     	var htm = '';
+     	for(var i=0; i<num; i++){                                               //如果是多图上传，循环输出放置
+     		htm += '<li><img src="'+output+'" class="vImg" /></li>'
+     	}	
+     	$('.vLst').append(htm)                                                 //追加至vLst中
+
+     	$('.vImg').each(function(){
+     		var v = $(this);
+     		var s = v.attr('src');
+     		preImg(s,v)                                                        //图片预加载
+     		
+     	})
+
+     }
+ });
+
+------------------------------------------------------------------------------------------------------------------------------
+
+附加功能：
+
+ 图片预加载：
+ function preImg(src,ele){
+	var img = new Image();
+	img.src = src;
+
+
+	if(img.complete){
+		console.log('complete');
+
+		size(img,ele);                 //调用图片处理方法
+	}else{
+		img.onload = function(){
+			console.log('load')
+
+			size(img,ele);            //调用图片处理方法
+		} 
+	}
+}
+
+
+图片尺寸控制及居中：
+function size(img,ele){
+	var wid = img.width;
+	var hei = img.height;
+	var wHei = $(window).height();
+	var rate;
+
+	if(wid>hei){
+		rate = 200/wid;
+		ele.css({ width:'100%', height:'auto', top: (200-hei*rate)/2+'px' })
+	}else{
+		rate = 200/hei;
+		ele.css({ width:'auto', height:'100%', left: (200-wid*rate)/2+'px' })
+	}
+}
+
+
+详细效果参考源码！
+
+
+
