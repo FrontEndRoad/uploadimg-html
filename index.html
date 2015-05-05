@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<script src="js/viewport.js"></script>
+	<title>Document</title>
+	<style>
+	body {margin: 0; background: #fff; }
+	ul { padding: 0; margin: 0; list-style: none; }
+
+	.wrap { width: 90%; margin: 20px auto; overflow: hidden; }
+		.upLoad { width: 160px; height: 160px; background: #ccc url(images/camera.png) no-repeat center; background-size: 40% 40%; border: 1px solid #aaa; position: relative; }
+			.file { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 3; opacity: 0; }
+		.vLst {}	
+		.vLst li { width: 200px; height: 200px; background: #eee; border: 1px solid #aaa; position: relative; float: left; margin: 0 10px; overflow: hidden; }	
+			.vImg { position: absolute; top: 0; left: 0; }
+
+	.msk { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 344; background: rgba(0,0,0,.8) url(images/reload.gif) no-repeat center; display: none; }
+
+	</style>
+</head>
+<body>
+	
+	<div class="wrap">
+		<div class="upLoad">
+            <!-- <input class="file" multiple="multiple" accept="images/jpeg" type="file" name="" id="file"> -->
+            <input class="file" multiple="multiple" type="file" name="" id="file">
+		</div>
+
+		<h3 class="tit">预览：</h3>
+		<ul class="vLst"></ul>
+	</div>
+	
+	<div class="msk"></div>'
+
+	<script src="js/jquery-1.7.2.min.js"></script>
+	<script src="js/exif.js"></script>
+	<script src="js/LocalResizeIMG.js"></script>
+	<script src="js/mobileBUGFix.mini.js"></script>
+	<script>
+		var num = 0;
+		$('#file').localResizeIMG({
+             width: 640,
+             quality: 0.8,
+             before: function (that, blob) {
+             	num = $(that).length;
+             	console.log(num)
+             	
+             	$('.msk').show();
+             },
+             success: function (result) {
+             	$('.msk').hide();
+
+             	var output = result.base64;
+             	console.log(output)
+
+             	var htm = '';
+             	for(var i=0; i<num; i++){
+             		htm += '<li><img src="'+output+'" class="vImg" /></li>'
+             	}	
+             	$('.vLst').append(htm)
+
+             	$('.vImg').each(function(){
+             		var v = $(this);
+             		var s = v.attr('src');
+             		preImg(s,v)
+             		
+             	})
+
+             }
+         });
+
+		function preImg(src,ele){
+			var img = new Image();
+			img.src = src;
+
+
+			if(img.complete){
+				console.log('complete');
+
+				size(img,ele);
+			}else{
+				img.onload = function(){
+					console.log('load')
+
+					size(img,ele);
+				}
+			}
+		}
+
+		function size(img,ele){
+			var wid = img.width;
+			var hei = img.height;
+			var wHei = $(window).height();
+			var rate;
+
+			if(wid>hei){
+				rate = 200/wid;
+				ele.css({ width:'100%', height:'auto', top: (200-hei*rate)/2+'px' })
+			}else{
+				rate = 200/hei;
+				ele.css({ width:'auto', height:'100%', left: (200-wid*rate)/2+'px' })
+			}
+		}
+	</script>
+</body>
+</html>
